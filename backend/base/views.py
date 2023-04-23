@@ -16,7 +16,54 @@ from .models import Models
 from .serializers import ModelSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
+import json
+from django.db import models
+import inspect
+from . import model_parser
 # Create your views here.
+
+# Replace with your JSON data
+json_data = """
+{
+  "tables": [
+    {
+      "name": "table1",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "primary_key": true,
+          "max_length": 255
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "max_length": 255
+        }
+      ]
+    },
+    {
+      "name": "table2",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "max_length": 255
+        },
+        {
+          "name": "description",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}
+"""
 
 def endpoints(request):
     data = ['/advocates', 'advocates/:username']
@@ -72,3 +119,12 @@ def User_logout(request):
     request.user.auth_token.delete()
     logout(request)
     return Response('User Logged out successfully')
+
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def Model_generator(request):    
+    # Load JSON data
+    data = json.loads(json_data)
+    parsedData = model_parser.getParsedData(data)
+    return Response({'message': 'User Created Successfully'})
+        
