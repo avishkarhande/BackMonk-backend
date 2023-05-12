@@ -20,7 +20,7 @@ import json
 from django.db import models
 import inspect
 from . import model_parser
-import ujson
+import json
 # Create your views here.
 
 # Replace with your JSON data
@@ -119,11 +119,13 @@ def User_logout(request):
 @permission_classes([IsAuthenticated])
 def Model_generator(request):    
     # Load JSON data
-    data = ujson.loads(json_data)
+    # title = request.body.title
+    # json_data = request.body.json_data
+    data = json.loads(json_data)
     parsedData = model_parser.getParsedData(data)
     user = request.user
     for each_model in parsedData:
-      model = Models(name="name", priority=1, json=each_model, user=user)
+      model = Models(name="name", priority=1, json=each_model, model=each_model, user=user)
       model.save()
     return Response({'message': 'Model Created Successfully'})
         
