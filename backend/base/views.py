@@ -20,6 +20,7 @@ import json
 from django.db import models
 import inspect
 from . import model_parser
+import ujson
 # Create your views here.
 
 # Replace with your JSON data
@@ -83,19 +84,13 @@ def login(request):
     token, _ = Token.objects.get_or_create(user=user)
     return Response({'token':token.key}, status=HTTP_200_OK)
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+@permission_classes((AllowAny,))
 def getAllModels(request):
     if request.method == "GET":
         models = Models.objects.filter(user=request.user)
         serializer = ModelSerializer(models, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
-    if request.method == "POST":
-        name = request.data.get("name")
-        json = request.data.get("json")
-        user = request.user
-        entry = Models(name=name, priority=1, json=json, user=user)
-        entry.save()
 
 
 @csrf_exempt
@@ -121,10 +116,14 @@ def User_logout(request):
     return Response('User Logged out successfully')
 
 @api_view(["POST"])
-@permission_classes((AllowAny,))
+@permission_classes([IsAuthenticated])
 def Model_generator(request):    
     # Load JSON data
-    data = json.loads(json_data)
+    data = ujson.loads(json_data)
     parsedData = model_parser.getParsedData(data)
-    return Response({'message': 'User Created Successfully'})
+    user = request.user
+    for each_model in parsedData:
+      model = Models(name="name", priority=1, json=each_model, user=user)
+      model.save()
+    return Response({'message': 'Model Created Successfully'})
         

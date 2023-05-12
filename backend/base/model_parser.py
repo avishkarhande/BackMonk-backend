@@ -23,6 +23,7 @@ django_model_types = {
 }
 
 def getParsedData(data):
+    model_array = []
     for i in data["tables"]:
         table_name = i["name"]
         columns = i["columns"]
@@ -39,5 +40,5 @@ def getParsedData(data):
                 params += ")"
                 query = "    " + j["name"] + "=" + field_name + params
                 model_output += query + "\n"
-        print(model_output)
-    return data
+        model_array.append(model_output)
+    return model_array
