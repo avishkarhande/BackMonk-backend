@@ -157,7 +157,13 @@ def user_models(request):
     user = request.user
     models = Models.objects.filter(user=user)
     serializer = ModelSerializer(models, many=True)
-    return Response({'message': 'Model Created Successfully', 'model' : serializer.data})
+    data = {}
+    for i in serializer.data:
+      if i['uuid'] in data:
+        data[i['uuid']].append(i)
+      else:
+        data[i['uuid']] = [i]
+    return Response({'message': 'Model Fetched Successfully', 'model' : data})
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
