@@ -20,6 +20,7 @@ django_model_types = {
     "integer": "models.IntegerField",
     "string": "models.CharField",
     "text": "models.TextField",
+    "boolean": "models.BooleanField",
 }
 
 def getParsedData(data):
@@ -41,4 +42,5 @@ def getParsedData(data):
                 query = "    " + j["name"] + "=" + field_name + params
                 model_output += query + "\n"
         model_array.append(model_output)
+        print(model_output)
     return model_array

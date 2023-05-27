@@ -67,7 +67,7 @@ json_data = """
 """
 
 def endpoints(request):
-    data = ['/advocates', 'advocates/:username']
+    data = ['', 'api/login', 'api/models', 'api/register', 'api/model_generate']
     return JsonResponse(data, safe=False)
 
 @csrf_exempt
@@ -84,12 +84,24 @@ def login(request):
     token, _ = Token.objects.get_or_create(user=user)
     return Response({'token':token.key}, status=HTTP_200_OK)
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes((AllowAny,))
 def getAllModels(request):
-    if request.method == "GET":
-        models = Models.objects.filter(user=request.user)
+    if request.method == "POST":
+        models = Models.objects.all().order_by('-priority')
         serializer = ModelSerializer(models, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def getModelById(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        uuid = body["uuid"]
+        models = Models.objects.filter(uuid=uuid)
+        serializer = ModelSerializer(models, many=True)
+        print(serializer.data)
         return Response(serializer.data, status=HTTP_200_OK)
 
 
@@ -104,7 +116,8 @@ def register(request):
     if existing_error.exists():
         return Response({}, status=HTTP_200_OK)
     else:
-        user = User(username=username,email=email, password=password)
+        user = User(username=username,email=email)
+        user.set_password(password)
         user.save()
         return Response({'message': 'User Created Successfully'})
 
@@ -118,14 +131,60 @@ def User_logout(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def Model_generator(request):    
-    # Load JSON data
-    # title = request.body.title
-    # json_data = request.body.json_data
-    data = json.loads(json_data)
-    parsedData = model_parser.getParsedData(data)
+    body = json.loads(request.body)
+    name = body["name"]
+    action = body["action"]
+    desc = body["description"]
+    uuid = body["uuid"]
+    print(body["json_data"])
+    parsedData = model_parser.getParsedData(body["json_data"])
     user = request.user
+    print(parsedData)
     for each_model in parsedData:
-      model = Models(name="name", priority=1, json=each_model, model=each_model, user=user)
-      model.save()
-    return Response({'message': 'Model Created Successfully'})
+      if action == "save":
+        model = Models.objects.create(name=name, priority=1, json=json_data, model=each_model, user=user, uuid=uuid)
+    mm = Models.objects.filter(uuid=uuid)
+    serializer = ModelSerializer(mm, many=True)
+    print(mm)
+    if action == "save":
+      return Response({'message': 'Model Created and Saved Successfully', 'model' : serializer.data})
+    else:
+      return Response({'message': 'Model Created Successfully', 'model' : parsedData})
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def user_models(request):    
+    user = request.user
+    models = Models.objects.filter(user=user)
+    serializer = ModelSerializer(models, many=True)
+    return Response({'message': 'Model Created Successfully', 'model' : serializer.data})
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def update_model(request):   
+    data = json.loads(request.body)
+    id = data["id"] 
+    name = data["name"]
+    desc = data["description"]
+    json_data = data["json_data"]
+    uuid = data["uuid"]
+    user = request.user
+    models = Models.objects.get(uuid=uuid)
+    models.name = name
+    models.description = desc
+    models.json = json_data
+    parsedData = model_parser.getParsedData(body["json_data"])
+    models.save()
+    serializer = ModelSerializer(models, many=True)
+    return Response({'message': 'Model Updated Successfully', 'model' : serializer.data})
         
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete_model(request):   
+    data = json.loads(request.body)
+    id = data["id"] 
+    user = request.user
+    models = Models.objects.get(id=id)
+    models.json = json_data
+    models.delete()
+    return Response({'message': 'Model Deleted Successfully'})
