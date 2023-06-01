@@ -9,11 +9,12 @@ list_params = {
     'verbose_name': True,
     'help_text': True,
     'unique': True,
-    'primary_key': True,
     'db_index': True,
     'editable': True,
     'max_length': True,
     'upload_to': True,
+    'foreign_key': True,
+    'on_delete': True
 }
 
 django_model_types = {
@@ -21,6 +22,10 @@ django_model_types = {
     "string": "models.CharField",
     "text": "models.TextField",
     "boolean": "models.BooleanField",
+    "date": "models.DateField",
+    "uuid": "models.UUIDField",
+    "datetime": "models.DateTimeField",
+    "time": "models.TimeField",
 }
 
 def getParsedData(data):

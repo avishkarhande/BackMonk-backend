@@ -22,51 +22,6 @@ import inspect
 from . import model_parser
 import json
 # Create your views here.
-
-# Replace with your JSON data
-json_data = """
-{
-  "tables": [
-    {
-      "name": "table1",
-      "columns": [
-        {
-          "name": "id",
-          "type": "integer",
-          "primary_key": true,
-          "max_length": 255
-        },
-        {
-          "name": "name",
-          "type": "string",
-          "max_length": 255
-        }
-      ]
-    },
-    {
-      "name": "table2",
-      "columns": [
-        {
-          "name": "id",
-          "type": "integer",
-          "primary_key": true
-        },
-        {
-          "name": "title",
-          "type": "string",
-          "max_length": 255
-        },
-        {
-          "name": "description",
-          "type": "text"
-        }
-      ]
-    }
-  ]
-}
-"""
-
-
 def endpoints(request):
     data = ['', 'api/login', 'api/models',
             'api/register', 'api/model_generate']
