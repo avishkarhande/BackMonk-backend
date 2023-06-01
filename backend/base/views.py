@@ -160,7 +160,7 @@ def Model_generator(request):
     if action == "save":
         return Response({'message': 'Models created and Project saved successfully!', 'model': serializer.data})
     else:
-        return Response({'message': 'Model created successfully!', 'model': parsedData, 'name': })
+        return Response({'message': 'Model created successfully!', 'model': parsedData})
 
 
 @api_view(["POST"])
