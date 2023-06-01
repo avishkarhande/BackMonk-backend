@@ -160,7 +160,12 @@ def Model_generator(request):
     if action == "save":
         return Response({'message': 'Models created and Project saved successfully!', 'model': serializer.data})
     else:
-        return Response({'message': 'Model created successfully!', 'model': parsedData})
+      models = []
+      current_idx = 0
+      for each_model in parsedData:
+        models.append({'name': body["json_data"]["tables"][current_idx]["name"], 'model': parsedData})
+        current_idx = current_idx + 1
+      return Response({'message': 'Model created successfully!', 'model': models})
 
 
 @api_view(["POST"])
