@@ -107,6 +107,7 @@ def getModelById(request):
         if models:
           for model in models:
             model.priority = model.priority + 1
+            model.save()
         serializer = ModelSerializer(models, many=True)
         print(serializer.data)
         return Response(serializer.data, status=HTTP_200_OK)
@@ -159,7 +160,7 @@ def Model_generator(request):
     if action == "save":
         return Response({'message': 'Models created and Project saved successfully!', 'model': serializer.data})
     else:
-        return Response({'message': 'Model created successfully!', 'model': parsedData})
+        return Response({'message': 'Model created successfully!', 'model': parsedData, 'name': })
 
 
 @api_view(["POST"])
