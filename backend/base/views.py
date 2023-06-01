@@ -163,7 +163,7 @@ def Model_generator(request):
       models = []
       current_idx = 0
       for each_model in parsedData:
-        models.append({'name': body["json_data"]["tables"][current_idx]["name"], 'model': parsedData})
+        models.append({'name': body["json_data"]["tables"][current_idx]["name"], 'model': each_model})
         current_idx = current_idx + 1
       return Response({'message': 'Model created successfully!', 'model': models})
 
