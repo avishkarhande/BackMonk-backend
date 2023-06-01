@@ -13,8 +13,7 @@ list_params = {
     'editable': True,
     'max_length': True,
     'upload_to': True,
-    'foreign_key': True,
-    'on_delete': True
+    'on_delete': True,
 }
 
 django_model_types = {
@@ -26,6 +25,11 @@ django_model_types = {
     "uuid": "models.UUIDField",
     "datetime": "models.DateTimeField",
     "time": "models.TimeField",
+    "foreign_key": "models.Foreignkey"
+}
+
+only_value_params = {
+    "foreign_table": True
 }
 
 def getParsedData(data):
@@ -40,6 +44,9 @@ def getParsedData(data):
             if j["type"] in django_model_types:
                 field_name = django_model_types[j["type"]]
                 params = "("
+                for param in only_value_params:
+                    if param in j:
+                        params += str(j[param]) + ","
                 for param in list_params:
                     if param in j:
                         params += str(param) + "=" + str(j[param]) + ","
@@ -47,5 +54,4 @@ def getParsedData(data):
                 query = "    " + j["name"] + "=" + field_name + params
                 model_output += query + "\n"
         model_array.append(model_output)
-        # print(model_output)
     return model_array
