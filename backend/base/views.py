@@ -104,6 +104,9 @@ def getModelById(request):
         body = json.loads(request.body)
         uuid = body["uuid"]
         models = Models.objects.filter(uuid=uuid)
+        if models:
+          for model in models:
+            model.priority = model.priority + 1
         serializer = ModelSerializer(models, many=True)
         print(serializer.data)
         return Response(serializer.data, status=HTTP_200_OK)
@@ -142,17 +145,17 @@ def Model_generator(request):
     action = body["action"]
     desc = body["description"]
     uuid = body["uuid"]
-    print(body["json_data"])
     parsedData = model_parser.getParsedData(body["json_data"])
     user = request.user
-    print(parsedData)
+    current_idx = 0
     for each_model in parsedData:
-        if action == "save":
-            model = Models.objects.create(
-                name=name, description=desc, priority=1, json=body["json_save"], model=each_model, user=user, uuid=uuid)
+      if action == "save":
+          model = Models.objects.create(
+              name=body["json_data"]["tables"][current_idx]["name"], description=desc, priority=1, json=body["json_save"], model=each_model, user=user, uuid=uuid)
+      current_idx = current_idx + 1
     mm = Models.objects.filter(uuid=uuid)
     serializer = ModelSerializer(mm, many=True)
-    print(mm)
+    print(serializer.data)
     if action == "save":
         return Response({'message': 'Models created and Project saved successfully!', 'model': serializer.data})
     else:
@@ -183,25 +186,24 @@ def update_model(request):
     desc = data["description"]
     json_data = data["json_data"]
     uuid = data["uuid"]
-    print("PREVIOUS UUID:", uuid)
+    # print("PREVIOUS UUID:", uuid)
     parsedData = model_parser.getParsedData(data["json_data"])
     user = request.user
     current_models = Models.objects.filter(uuid=uuid)
     current_models.delete()
+    current_priority = 1
+    if current_models:
+      current_priority = current_models[0].priority
+    current_idx = 0
     for each_model in parsedData:
-        # TODO: add previous priority here, currently set to 1
-        model = Models.objects.create(
-            name=name, description=desc, priority=1, json=data["json_save"], model=each_model, user=user, uuid=uuid)
+      # TODO: add previous priority here, currently set to 1
+      print("model created")
+      model = Models.objects.create(
+          name=data["json_data"]["tables"][current_idx]["name"], description=desc, priority=current_priority, json=data["json_save"], model=each_model, user=user, uuid=uuid)
+      current_idx = current_idx + 1
     mm = Models.objects.filter(uuid=uuid)
     serializer = ModelSerializer(mm, many=True)
-    print(mm)
-
-    # models = Models.objects.get(uuid=uuid)
-    # models.name = name
-    # models.description = desc
-    # models.json = json_data
-    # parsedData = model_parser.getParsedData(body["json_data"])
-    # models.save()
+    # print(mm)
     return Response({'message': 'Models updated successfully', 'model': serializer.data})
 
 

@@ -42,5 +42,5 @@ def getParsedData(data):
                 query = "    " + j["name"] + "=" + field_name + params
                 model_output += query + "\n"
         model_array.append(model_output)
-        print(model_output)
+        # print(model_output)
     return model_array
